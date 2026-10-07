@@ -1,0 +1,317 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#f5f3ee">
+<title>自我介紹</title>
+<style>
+  :root{
+    --bg:#f5f3ee; --card:#ffffff; --line:#e6e1d8; --field:#f8f6f2;
+    --text:#2f2a26; --muted:#7d756d; --primary:#4a403a; --primary-ink:#fff;
+    --male:#3b82f6; --female:#e2489b; --radius:18px;
+  }
+  *{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+  button{touch-action:manipulation;-webkit-appearance:none;appearance:none;font-family:inherit;cursor:pointer;position:relative;z-index:1}
+  #jsWarn{background:#fff7e6;border:1px solid #f5c26b;color:#7a4b00;border-radius:12px;padding:12px 14px;font-size:14px;margin-bottom:14px;line-height:1.5}
+  html,body{margin:0;background:var(--bg);color:var(--text);
+    font-family:-apple-system,BlinkMacSystemFont,"PingFang TC","Noto Sans TC","Microsoft JhengHei","Segoe UI",sans-serif;}
+  .wrap{max-width:480px;margin:0 auto;padding:20px 18px calc(28px + env(safe-area-inset-bottom));min-height:100vh;display:flex;flex-direction:column}
+  header{display:flex;align-items:center;justify-content:space-between;margin:6px 2px 22px}
+  header h1{font-size:24px;margin:0;font-weight:700;letter-spacing:.5px}
+  .hbtns{display:flex;gap:8px}
+  .chip{display:inline-flex;align-items:center;gap:6px;border:1px solid var(--line);background:#fff;color:var(--muted);
+    font-weight:600;font-size:13px;padding:7px 11px;border-radius:9px;cursor:pointer}
+  .card{background:var(--card);border:1px solid var(--line);border-radius:var(--radius);padding:22px 20px;margin-bottom:16px;box-shadow:0 1px 3px rgba(0,0,0,.03)}
+  .hint{color:var(--muted);font-size:14px;margin:0 0 18px}
+  label.l{display:block;font-size:14px;font-weight:600;margin:16px 0 8px}
+  .gender{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+  .gbtn{border:1px solid var(--line);background:var(--field);border-radius:12px;padding:11px;font-size:15px;font-weight:600;color:var(--text);cursor:pointer}
+  .gbtn.on{border-color:var(--primary);background:#fff;box-shadow:0 0 0 1px var(--primary)}
+  .gbtn .m{color:var(--male)} .gbtn .f{color:var(--female)}
+  input.t{width:100%;border:1px solid var(--line);background:var(--field);border-radius:12px;padding:14px 15px;font-size:16px;color:var(--text);outline:none}
+  input.t:focus{border-color:var(--primary);background:#fff}
+  .btn{width:100%;border:0;border-radius:12px;padding:15px;font-size:16px;font-weight:700;cursor:pointer;background:var(--primary);color:var(--primary-ink)}
+  .btn:disabled{background:#b5b1ad;cursor:not-allowed}
+  .btn.ghost{background:#fff;color:var(--text);border:1px solid var(--line)}
+  .mt{margin-top:24px}
+  .hidden{display:none!important}
+  /* loading */
+  .loading{text-align:center;padding:56px 20px}
+  .spinner{width:54px;height:54px;border-radius:50%;border:5px solid var(--line);border-top-color:var(--primary);margin:0 auto 20px;animation:spin 1s linear infinite}
+  @keyframes spin{to{transform:rotate(360deg)}}
+  .loading p{color:var(--muted);margin:6px 0}
+  /* result */
+  .imgbox{border-radius:14px;overflow:hidden;background:var(--field);aspect-ratio:1/1}
+  .imgbox img{width:100%;height:100%;object-fit:cover;display:block}
+  .ans{margin-top:16px;display:flex;flex-direction:column;gap:8px}
+  .row{display:flex;justify-content:space-between;align-items:center;gap:12px;border:1px solid var(--line);background:var(--field);border-radius:10px;padding:10px 14px;font-size:14px}
+  .row .k{color:var(--muted);white-space:nowrap}
+  .row .v{font-weight:600;text-align:right;word-break:break-word}
+  .reveal{margin-top:12px;padding:11px;font-size:14px}
+  details{border:1px solid var(--line);border-radius:12px;padding:12px 14px}
+  summary{cursor:pointer;font-weight:600;font-size:14px;list-style:none;display:flex;justify-content:space-between}
+  summary::after{content:"⌄";color:var(--muted)}
+  details[open] summary::after{content:"⌃"}
+  details pre{white-space:pre-wrap;font-size:12.5px;color:var(--muted);margin:12px 0 0;font-family:inherit;line-height:1.5}
+  .actions{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:4px}
+  .err{color:#b42318;background:#fef3f2;border:1px solid #fecdca;border-radius:12px;padding:12px 14px;font-size:14px;margin-top:16px;word-break:break-word}
+  .toast{position:fixed;left:50%;bottom:28px;transform:translateX(-50%);background:var(--primary);color:#fff;padding:10px 16px;border-radius:10px;font-size:14px;opacity:0;transition:.25s;pointer-events:none;z-index:50}
+  .toast.show{opacity:1}
+  /* modal */
+  .mask{position:fixed;inset:0;background:rgba(0,0,0,.35);display:flex;align-items:center;justify-content:center;padding:20px;z-index:40}
+  .modal{background:#fff;border-radius:16px;padding:20px;width:100%;max-width:420px}
+  .modal h3{margin:0 0 8px}
+  .modal .actions{margin-top:16px}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <div id="jsWarn">⚠️ 如果你看到這段訊息，代表目前的 App（例如 OneDrive / Teams / WhatsApp 預覽）封鎖了程式。請按右上角「⋯」選擇「在 Safari / Chrome 開啟」。<br>If you see this, scripts are blocked here — please open the page in Safari / Chrome.</div>
+  <header>
+    <h1 data-i="title">自我介紹</h1>
+    <div class="hbtns">
+      <button type="button" class="chip" id="langBtn">🌐 <span id="langLabel">EN</span></button>
+      <button type="button" class="chip" id="keyBtn">🔑 <span data-i="key">金鑰</span></button>
+    </div>
+  </header>
+
+  <!-- Page 1: Form -->
+  <section id="pForm" class="card">
+    <p class="hint" data-i="hint">請選擇性別並填寫三項特質。</p>
+    <label class="l" data-i="gender">我的性別</label>
+    <div class="gender">
+      <button type="button" class="gbtn" data-g="male"><span class="m">♂</span> <span data-i="male">男</span></button>
+      <button type="button" class="gbtn" data-g="female"><span class="f">♀</span> <span data-i="female">女</span></button>
+    </div>
+    <label class="l" for="f1" data-i="q1">一件我喜歡做的事</label>
+    <input class="t" id="f1" maxlength="60" autocomplete="off" data-ph="p1">
+    <label class="l" for="f2" data-i="q2">一項我擅長做的事</label>
+    <input class="t" id="f2" maxlength="60" autocomplete="off" data-ph="p2">
+    <label class="l" for="f3" data-i="q3">我的理想職業是…</label>
+    <input class="t" id="f3" maxlength="60" autocomplete="off" data-ph="p3">
+    <button type="button" class="btn mt" id="genBtn" disabled data-i="gen">生成</button>
+  </section>
+
+  <!-- Loading -->
+  <section id="pLoad" class="card loading hidden">
+    <div class="spinner"></div>
+    <p style="font-weight:700;color:var(--text)" data-i="loading">AI 正在為你繪圖…</p>
+    <p id="loadTip"></p>
+  </section>
+
+  <!-- Page 2: Result -->
+  <section id="pResult" class="hidden">
+    <div class="card">
+      <div class="imgbox"><img id="outImg" alt=""></div>
+      <div class="ans">
+        <div class="row"><span class="k" data-i="s1">喜歡</span><span class="v" id="a1">***</span></div>
+        <div class="row"><span class="k" data-i="s2">擅長</span><span class="v" id="a2">***</span></div>
+        <div class="row"><span class="k" data-i="s3">理想職業</span><span class="v" id="a3">***</span></div>
+      </div>
+      <button type="button" class="btn ghost reveal" id="revealBtn"></button>
+    </div>
+    <div class="card" style="padding:14px 16px">
+      <details>
+        <summary>🪄 <span data-i="showPrompt" style="flex:1;margin-left:6px">顯示繪圖提示詞 (Prompt)</span></summary>
+        <pre id="promptTxt"></pre>
+      </details>
+    </div>
+    <div class="actions">
+      <button type="button" class="btn ghost" id="againBtn" data-i="again">再做一個</button>
+      <button type="button" class="btn" id="shareBtn" data-i="share">分享</button>
+    </div>
+  </section>
+
+  <div id="errBox" class="err hidden"></div>
+</div>
+
+<!-- Key modal -->
+<div class="mask hidden" id="keyMask">
+  <div class="modal">
+    <h3 data-i="keyTitle">API 金鑰</h3>
+    <p class="hint" data-i="keyHint">預設已使用內置金鑰。如需更換，可在此輸入（只會儲存在此裝置）。</p>
+    <input class="t" id="keyInput" placeholder="AQ.… / AIza…" autocomplete="off">
+    <div class="actions">
+      <button type="button" class="btn ghost" id="keyReset" data-i="keyReset">還原預設</button>
+      <button type="button" class="btn" id="keySave" data-i="keySave">儲存</button>
+    </div>
+  </div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+/* 舊版手機瀏覽器相容寫法 (ES5)，並在畫面顯示任何錯誤 */
+window.onerror=function(msg,src,line){var b=document.getElementById("errBox");if(b){b.textContent="程式錯誤 / Script error: "+msg+" (line "+line+")";b.className="err";}};
+(function(){
+var DEFAULT_API_KEY="AQ.Ab8RN6IN3EQiAb7FTlZ6s2f9hynrYiLtgJcIsPoBJ-mxYvaWfQ";
+var MODELS=["gemini-3.1-flash-image","gemini-3.1-flash-image-preview"];
+var ASPECT="1:1";
+var T={
+ zh:{title:"自我介紹",key:"金鑰",hint:"請選擇性別並填寫三項特質。",gender:"我的性別",male:"男",female:"女",
+  q1:"一件我喜歡做的事",q2:"一項我擅長做的事",q3:"我的理想職業是…",
+  p1:"例如：彈吉他、潛水、看動漫…",p2:"例如：寫程式、做烘焙、講笑話…",p3:"例如：太空人、遊戲開發者、烘焙師…",
+  gen:"生成",loading:"AI 正在為你繪圖…",s1:"喜歡",s2:"擅長",s3:"理想職業",
+  reveal:"👁 開估",hide:"🙈 收起答案",showPrompt:"顯示繪圖提示詞 (Prompt)",again:"再做一個",share:"分享",
+  keyTitle:"API 金鑰",keyHint:"預設已使用內置金鑰。如需更換，可在此輸入（只會儲存在此裝置）。",keyReset:"還原預設",keySave:"儲存",
+  saved:"已儲存",downloaded:"已開啟圖片，長按即可儲存或分享",shareText:"猜猜我喜歡做甚麼、擅長甚麼、理想職業是甚麼？🤔",
+  tips:["正在構思畫面…","加入你的興趣元素…","展示你的拿手好戲…","佈置理想職業場景…","通常需要 10–30 秒"],
+  errNoImg:"AI 未能生成圖片（可能內容被安全過濾），請修改內容再試。",errNet:"連線失敗，請檢查網絡後再試。",errKey:"金鑰無效或沒有權限，請按右上角「金鑰」檢查。",errQuota:"使用次數已達上限，請稍後再試。",errOther:"發生錯誤"},
+ en:{title:"Self Intro",key:"Key",hint:"Choose your gender and fill in three things about you.",gender:"I am",male:"Male",female:"Female",
+  q1:"Something I love doing",q2:"Something I'm good at",q3:"My dream job is…",
+  p1:"e.g. playing guitar, diving, anime…",p2:"e.g. coding, baking, telling jokes…",p3:"e.g. astronaut, game developer, baker…",
+  gen:"Generate",loading:"AI is drawing for you…",s1:"Love",s2:"Good at",s3:"Dream job",
+  reveal:"👁 Reveal",hide:"🙈 Hide answers",showPrompt:"Show image prompt",again:"Make another",share:"Share",
+  keyTitle:"API Key",keyHint:"A built-in key is used by default. Enter another key to override (saved on this device only).",keyReset:"Reset",keySave:"Save",
+  saved:"Saved",downloaded:"Image opened – long-press to save or share",shareText:"Guess what I love, what I'm good at, and my dream job! 🤔",
+  tips:["Imagining the scene…","Adding your hobby…","Showing off your skill…","Setting up your dream job…","Usually takes 10–30 seconds"],
+  errNoImg:"No image was returned (it may have been filtered). Please adjust your answers and try again.",errNet:"Network error. Please check your connection and retry.",errKey:"Invalid key or no permission. Tap “Key” at the top to check.",errQuota:"Usage limit reached. Please try again later.",errOther:"Error"}
+};
+/* localStorage 在部分 App 內置瀏覽器/私密模式會出錯，需包住 */
+function lsGet(k){try{return window.localStorage.getItem(k);}catch(e){return null;}}
+function lsSet(k,v){try{window.localStorage.setItem(k,v);}catch(e){}}
+function lsDel(k){try{window.localStorage.removeItem(k);}catch(e){}}
+function $(s){return document.querySelector(s);}
+function $$(s){return Array.prototype.slice.call(document.querySelectorAll(s));}
+function tap(el,fn){el.addEventListener("click",function(e){e.preventDefault();fn(e);},false);}
+
+var lang=lsGet("si_lang")||"zh", gender="", revealed=false, lastBlob=null, lastDataUrl="", tipTimer=null;
+function t(k){return T[lang][k];}
+
+function applyLang(){
+ document.documentElement.lang=lang==="zh"?"zh-Hant":"en";
+ document.title=t("title");
+ $("#langLabel").textContent=lang==="zh"?"EN":"中";
+ $$("[data-i]").forEach(function(el){el.textContent=t(el.getAttribute("data-i"));});
+ $$("[data-ph]").forEach(function(el){el.placeholder=t(el.getAttribute("data-ph"));});
+ $("#revealBtn").textContent=revealed?t("hide"):t("reveal");
+}
+tap($("#langBtn"),function(){lang=lang==="zh"?"en":"zh";lsSet("si_lang",lang);applyLang();});
+
+var fields=[$("#f1"),$("#f2"),$("#f3")];
+function filled(){for(var i=0;i<fields.length;i++){if(!fields[i].value.replace(/\s/g,""))return false;}return true;}
+function validate(){$("#genBtn").disabled=!(gender&&filled());}
+fields.forEach(function(f){f.addEventListener("input",validate);f.addEventListener("keyup",validate);f.addEventListener("change",validate);});
+$$(".gbtn").forEach(function(b){tap(b,function(){
+ gender=b.getAttribute("data-g");
+ $$(".gbtn").forEach(function(x){if(x===b)x.classList.add("on");else x.classList.remove("on");});
+ validate();
+});});
+
+function getKey(){return lsGet("si_key")||DEFAULT_API_KEY;}
+tap($("#keyBtn"),function(){$("#keyInput").value=lsGet("si_key")||"";$("#keyMask").classList.remove("hidden");});
+$("#keyMask").addEventListener("click",function(e){if(e.target.id==="keyMask")$("#keyMask").classList.add("hidden");});
+tap($("#keySave"),function(){var v=$("#keyInput").value.trim();if(v)lsSet("si_key",v);else lsDel("si_key");$("#keyMask").classList.add("hidden");toast(t("saved"));});
+tap($("#keyReset"),function(){lsDel("si_key");$("#keyInput").value="";$("#keyMask").classList.add("hidden");toast(t("saved"));});
+
+function buildPrompt(like,good,dream){
+ var who=gender==="male"?"a friendly young man":"a friendly young woman";
+ return 'Create ONE photorealistic, warm, cinematic photo (square format) that works as a visual "self-introduction puzzle" - friends should be able to look at it and guess three facts about the person.\n\n'+
+ 'Main character: '+who+', shown clearly in the scene, smiling or focused, natural and relatable.\n\n'+
+ 'Include all three elements, each clearly recognisable:\n'+
+ '1. HOBBY (main action): the person is actively doing -> "'+like+'".\n'+
+ '2. SKILL: clear visual evidence that they are excellent at -> "'+good+'" (e.g. tools of the trade, finished works, trophies or results visible in the scene).\n'+
+ '3. DREAM JOB: the setting, background details, outfit accessory or props hint at the dream career -> "'+dream+'".\n\n'+
+ 'Blend all three naturally into one coherent, believable scene with plenty of small clues to spot. Bright, positive, inviting mood; soft natural lighting; rich detail.\n'+
+ 'IMPORTANT: absolutely NO text, words, letters, numbers, captions, signs or logos anywhere in the image.';
+}
+
+function endpoints(){
+ var list=[];
+ MODELS.forEach(function(m){
+  list.push("https://generativelanguage.googleapis.com/v1beta/models/"+m+":generateContent");
+  list.push("https://aiplatform.googleapis.com/v1/publishers/google/models/"+m+":generateContent");
+ });
+ return list;
+}
+function pick(o,path){for(var i=0;i<path.length;i++){if(o==null)return undefined;o=o[path[i]];}return o;}
+
+function generateImage(prompt){
+ var body=JSON.stringify({contents:[{role:"user",parts:[{text:prompt}]}],
+  generationConfig:{responseModalities:["TEXT","IMAGE"],imageConfig:{aspectRatio:ASPECT}}});
+ var urls=endpoints(), lastErr=null;
+ function tryNext(i){
+  if(i>=urls.length) return Promise.reject(lastErr||{type:"other"});
+  return fetch(urls[i],{method:"POST",headers:{"Content-Type":"application/json","x-goog-api-key":getKey()},body:body})
+  .then(function(res){
+   return res.text().then(function(txt){
+    var data={};try{data=JSON.parse(txt);}catch(e){}
+    if(res.ok){
+     var parts=pick(data,["candidates",0,"content","parts"])||[];
+     for(var k=0;k<parts.length;k++){var d=parts[k].inlineData||parts[k].inline_data;
+      if(d&&d.data)return {mime:d.mimeType||d.mime_type||"image/png",b64:d.data};}
+     throw {type:"noimg",fatal:true};
+    }
+    var msg=pick(data,["error","message"])||res.statusText||"";
+    if(res.status===429) throw {type:"quota",detail:msg,fatal:true};
+    if(res.status===400&&!/API key|model|not found|not supported/i.test(msg)) throw {type:"other",detail:msg,fatal:true};
+    lastErr={type:(res.status===401||res.status===403)?"key":"other",detail:res.status+" "+msg};
+    return tryNext(i+1);
+   });
+  },function(e){lastErr={type:"net",detail:e&&e.message};return tryNext(i+1);})
+  .catch(function(e){if(e&&e.fatal)throw e;lastErr=e;return tryNext(i+1);});
+ }
+ return tryNext(0);
+}
+
+function show(id){["#pForm","#pLoad","#pResult"].forEach(function(s){if(s===id)$(s).classList.remove("hidden");else $(s).classList.add("hidden");});window.scrollTo(0,0);}
+function showErr(e){
+ var map={net:"errNet",key:"errKey",quota:"errQuota",noimg:"errNoImg"};
+ e=e||{};
+ $("#errBox").textContent=t(map[e.type]||"errOther")+(e.detail?"\n("+e.detail+")":"");
+ $("#errBox").classList.remove("hidden");
+}
+function b64ToBlob(b64,mime){var bin=atob(b64),arr=new Uint8Array(bin.length);for(var k=0;k<bin.length;k++)arr[k]=bin.charCodeAt(k);return new Blob([arr],{type:mime});}
+
+tap($("#genBtn"),function(){
+ if($("#genBtn").disabled)return;
+ var like=fields[0].value.trim(),good=fields[1].value.trim(),dream=fields[2].value.trim();
+ var prompt=buildPrompt(like,good,dream);
+ if(document.activeElement)document.activeElement.blur();
+ $("#errBox").classList.add("hidden");
+ show("#pLoad");
+ var i=0;$("#loadTip").textContent=t("tips")[0];
+ tipTimer=setInterval(function(){i=(i+1)%t("tips").length;$("#loadTip").textContent=t("tips")[i];},3000);
+ generateImage(prompt).then(function(r){
+  clearInterval(tipTimer);
+  lastDataUrl="data:"+r.mime+";base64,"+r.b64;
+  lastBlob=b64ToBlob(r.b64,r.mime);
+  $("#outImg").src=lastDataUrl;
+  $("#a1").setAttribute("data-v",like);$("#a2").setAttribute("data-v",good);$("#a3").setAttribute("data-v",dream);
+  revealed=false;renderAnswers();
+  $("#promptTxt").textContent=prompt;
+  show("#pResult");
+ },function(e){clearInterval(tipTimer);show("#pForm");showErr(e);});
+});
+
+function renderAnswers(){
+ ["#a1","#a2","#a3"].forEach(function(s){$(s).textContent=revealed?$(s).getAttribute("data-v"):"***";});
+ $("#revealBtn").textContent=revealed?t("hide"):t("reveal");
+}
+tap($("#revealBtn"),function(){revealed=!revealed;renderAnswers();});
+tap($("#againBtn"),function(){fields.forEach(function(f){f.value="";});validate();$("#errBox").classList.add("hidden");show("#pForm");});
+
+tap($("#shareBtn"),function(){
+ if(!lastBlob)return;
+ var ext=lastBlob.type.indexOf("jpeg")>-1?"jpg":"png", file=null;
+ try{file=new File([lastBlob],"self-intro."+ext,{type:lastBlob.type});}catch(e){}
+ if(file&&navigator.canShare&&navigator.share&&navigator.canShare({files:[file]})){
+  navigator.share({files:[file],title:t("title"),text:t("shareText")}).catch(function(){});
+  return;
+ }
+ /* 後備：開新頁顯示圖片，讓用戶長按儲存/分享 */
+ var w=window.open("");
+ if(w){w.document.write('<meta name="viewport" content="width=device-width,initial-scale=1"><body style="margin:0;background:#000"><img src="'+lastDataUrl+'" style="width:100%">');}
+ else{var a=document.createElement("a");a.href=lastDataUrl;a.download="self-intro."+ext;document.body.appendChild(a);a.click();a.parentNode.removeChild(a);}
+ toast(t("downloaded"));
+});
+
+function toast(m){var el=$("#toast");el.textContent=m;el.classList.add("show");setTimeout(function(){el.classList.remove("show");},2200);}
+
+applyLang();
+var jw=document.getElementById("jsWarn");if(jw)jw.parentNode.removeChild(jw);
+})();
+</script>
+</body>
+</html>
